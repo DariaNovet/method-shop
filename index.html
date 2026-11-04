@@ -163,6 +163,34 @@
       font-size: .82rem; line-height: 1.45;
     }
     .hint { font-size: .8rem; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+    .switch { display: flex; align-items: center; gap: 8px; margin: 8px 0 12px; font-size: 0.9rem; color: var(--text); }
+    .switch input { width: auto; }
+
+    .about-block {
+      margin-bottom: 26px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .about-inner {
+      display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start;
+      padding: 18px;
+    }
+    .about-photo {
+      width: 120px; height: 120px; border-radius: 18px;
+      background: #e8e2d8 center/cover no-repeat; flex-shrink: 0;
+    }
+    .about-text { flex: 1; min-width: 200px; }
+    .about-text h2 {
+      margin: 0 0 8px;
+      font-family: "Instrument Serif", Georgia, serif;
+      font-weight: 400; font-size: 1.45rem;
+    }
+    .about-text #aboutBody {
+      color: #44403c; line-height: 1.55; white-space: pre-wrap; font-size: 0.95rem;
+    }
     #adminRoot { min-height: 100vh; background: #f7f5f0; }
   </style>
 </head>
@@ -178,6 +206,17 @@
           <button type="button" class="btn-soft" id="btnWishlist">Отложенное · <span id="wishCount">0</span></button>
         </div>
       </header>
+
+
+      <section id="aboutSection" class="about-block hidden">
+        <div class="about-inner">
+          <div id="aboutPhoto" class="about-photo hidden"></div>
+          <div class="about-text">
+            <h2 id="aboutTitle">О создателях</h2>
+            <div id="aboutBody"></div>
+          </div>
+        </div>
+      </section>
 
       <div id="catalog" class="grid"></div>
       <div id="catalogEmpty" class="empty hidden">Каталог пока пуст.</div>
@@ -204,6 +243,21 @@
         <button type="button" class="btn-dark" id="saveCfg" style="margin-top:12px;">Сохранить</button>
       </div>
 
+
+      <div class="panel">
+        <h2>О создателях (плашка на витрине)</h2>
+        <label class="switch"><input type="checkbox" id="cfgAboutOn" /> Показывать блок на сайте</label>
+        <label>Заголовок</label>
+        <input id="cfgAboutTitle" placeholder="О создателях" />
+        <label>Текст</label>
+        <textarea id="cfgAboutText" placeholder="Кто создал платформу и методические разработки..."></textarea>
+        <label>Фото</label>
+        <input id="cfgAboutPhoto" type="file" accept="image/*" />
+        <div id="cfgAboutPreview" class="about-photo" style="display:none;margin-top:8px;"></div>
+        <button type="button" class="btn-soft" id="cfgAboutClearPhoto" style="margin-top:8px;">Убрать фото</button>
+        <button type="button" class="btn-dark" id="saveAbout" style="margin-top:12px;">Сохранить блок «О создателях»</button>
+      </div>
+
       <div class="panel">
         <h2 id="formTitle">Новый товар</h2>
         <input type="hidden" id="editId" />
@@ -223,6 +277,23 @@
         </div>
         <label>Текст акции</label>
         <input id="fSaleLabel" value="Акция" />
+
+        <label>Реквизиты для этого товара (если пусто — общие из настроек)</label>
+        <div class="row">
+          <div>
+            <label>Телефон (СБП)</label>
+            <input id="fPayPhone" placeholder="+7..." />
+          </div>
+          <div>
+            <label>Банк</label>
+            <input id="fPayBank" placeholder="Название банка" />
+          </div>
+        </div>
+        <label>Получатель</label>
+        <input id="fPayName" placeholder="ФИО" />
+        <label>Дополнительно к реквизитам (необязательно)</label>
+        <textarea id="fPayExtra" placeholder="Комментарий для оплаты, карта и т.п."></textarea>
+
         <label>Обложка</label>
         <input id="fCover" type="file" accept="image/*" />
         <div id="fCoverPreview" class="cover" style="max-width:140px;margin-top:8px;border-radius:14px;display:none;"></div>
@@ -317,7 +388,11 @@
   const defaultState = {
     config: {
       requisites: "СБП / перевод:\nТелефон: +7\nБанк:\nПолучатель:\n\nВ комментарии укажите код заказа.",
-      vkLink: "https://vk.com/"
+      vkLink: "https://vk.com/",
+      aboutEnabled: false,
+      aboutTitle: "О создателях",
+      aboutText: "",
+      aboutPhoto: ""
     },
     products: []
   };
@@ -367,11 +442,31 @@
     return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
+
+  function renderAbout() {
+    const sec = $("aboutSection");
+    const cfg = state.config || {};
+    const on = !!cfg.aboutEnabled && !!(cfg.aboutText || cfg.aboutPhoto);
+    sec.classList.toggle("hidden", !on);
+    if (!on) return;
+    $("aboutTitle").textContent = cfg.aboutTitle || "О создателях";
+    $("aboutBody").textContent = cfg.aboutText || "";
+    const ph = $("aboutPhoto");
+    if (cfg.aboutPhoto) {
+      ph.classList.remove("hidden");
+      ph.style.backgroundImage = "url('" + cfg.aboutPhoto + "')";
+    } else {
+      ph.classList.add("hidden");
+      ph.style.backgroundImage = "";
+    }
+  }
+
   function renderCatalog() {
     const root = $("catalog");
     let list = state.products.slice().sort((a,b) => (b.createdAt||0)-(a.createdAt||0));
     if (filter === "sale") list = list.filter(hasSale);
     root.innerHTML = "";
+    renderAbout();
     $("catalogEmpty").classList.toggle("hidden", list.length > 0);
     list.forEach((p) => {
       const card = document.createElement("article");
@@ -451,13 +546,32 @@
     );
   }
 
+
+  function formatProductRequisites(p) {
+    const phone = (p.payPhone || "").trim();
+    const bank = (p.payBank || "").trim();
+    const name = (p.payName || "").trim();
+    const extra = (p.payExtra || "").trim();
+    const hasCustom = phone || bank || name || extra;
+    if (!hasCustom) {
+      return state.config.requisites || "Реквизиты не заданы.";
+    }
+    let lines = ["Реквизиты для оплаты:"];
+    if (phone) lines.push("Телефон (СБП): " + phone);
+    if (bank) lines.push("Банк: " + bank);
+    if (name) lines.push("Получатель: " + name);
+    if (extra) lines.push(extra);
+    lines.push("", "В комментарии к переводу укажите код заказа.");
+    return lines.join("\n");
+  }
+
   function openOrder(id) {
     const p = state.products.find((x) => x.id === id);
     if (!p) return;
     currentProductId = id;
     const code = orderCode();
     $("payProductTitle").textContent = p.title + " — " + money(effectivePrice(p));
-    $("payRequisites").textContent = state.config.requisites || "Реквизиты не заданы.";
+    $("payRequisites").textContent = formatProductRequisites(p);
     $("payOrderCode").textContent = code;
     $("payOrderCode").dataset.code = code;
     $("payOrderCode").dataset.text = buildOrderText(p, code);
@@ -496,6 +610,15 @@
     $("adminRoot").classList.remove("hidden");
     $("cfgRequisites").value = state.config.requisites || "";
     $("cfgVk").value = state.config.vkLink || "";
+    $("cfgAboutOn").checked = !!state.config.aboutEnabled;
+    $("cfgAboutTitle").value = state.config.aboutTitle || "О создателях";
+    $("cfgAboutText").value = state.config.aboutText || "";
+    if (state.config.aboutPhoto) {
+      $("cfgAboutPreview").style.display = "block";
+      $("cfgAboutPreview").style.backgroundImage = "url('" + state.config.aboutPhoto + "')";
+    } else {
+      $("cfgAboutPreview").style.display = "none";
+    }
     renderAdminProducts();
     resetForm();
     history.replaceState(null, "", "#manage");
@@ -540,6 +663,7 @@
     $("formTitle").textContent = "Новый товар";
     $("fTitle").value = ""; $("fDesc").value = ""; $("fPrice").value = "";
     $("fSale").value = ""; $("fSaleLabel").value = "Акция"; $("fCover").value = "";
+    $("fPayPhone").value = ""; $("fPayBank").value = ""; $("fPayName").value = ""; $("fPayExtra").value = "";
     coverDataUrl = null; $("fCoverPreview").style.display = "none";
   }
   function fillForm(p) {
@@ -550,6 +674,10 @@
     $("fPrice").value = p.price;
     $("fSale").value = p.salePrice != null ? p.salePrice : "";
     $("fSaleLabel").value = p.saleLabel || "Акция";
+    $("fPayPhone").value = p.payPhone || "";
+    $("fPayBank").value = p.payBank || "";
+    $("fPayName").value = p.payName || "";
+    $("fPayExtra").value = p.payExtra || "";
     coverDataUrl = p.cover || null;
     if (coverDataUrl) {
       $("fCoverPreview").style.display = "block";
@@ -572,6 +700,10 @@
       price,
       salePrice: salePrice != null && !Number.isNaN(salePrice) ? salePrice : null,
       saleLabel: ($("fSaleLabel").value || "Акция").trim(),
+      payPhone: ($("fPayPhone").value || "").trim(),
+      payBank: ($("fPayBank").value || "").trim(),
+      payName: ($("fPayName").value || "").trim(),
+      payExtra: ($("fPayExtra").value || "").trim(),
       cover: coverDataUrl || (existing && existing.cover) || "",
       createdAt: existing ? existing.createdAt : Date.now()
     };
@@ -639,6 +771,39 @@
   ["productModal","wishModal","payModal","adminLoginModal"].forEach((id) => {
     $(id).addEventListener("click", (e) => { if (e.target === $(id)) $(id).classList.add("hidden"); });
   });
+
+
+  let aboutPhotoData = null;
+  $("saveAbout").onclick = () => {
+    state.config.aboutEnabled = $("cfgAboutOn").checked;
+    state.config.aboutTitle = ($("cfgAboutTitle").value || "О создателях").trim();
+    state.config.aboutText = ($("cfgAboutText").value || "").trim();
+    if (aboutPhotoData) state.config.aboutPhoto = aboutPhotoData;
+    saveState();
+    renderAbout();
+    toast("Блок «О создателях» сохранён");
+  };
+  $("cfgAboutPhoto").onchange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (file.size > 1.5 * 1024 * 1024) return toast("Фото до ~1.5 МБ");
+    const reader = new FileReader();
+    reader.onload = () => {
+      aboutPhotoData = String(reader.result);
+      state.config.aboutPhoto = aboutPhotoData;
+      $("cfgAboutPreview").style.display = "block";
+      $("cfgAboutPreview").style.backgroundImage = "url('" + aboutPhotoData + "')";
+    };
+    reader.readAsDataURL(file);
+  };
+  $("cfgAboutClearPhoto").onclick = () => {
+    aboutPhotoData = null;
+    state.config.aboutPhoto = "";
+    $("cfgAboutPhoto").value = "";
+    $("cfgAboutPreview").style.display = "none";
+    saveState();
+    toast("Фото убрано");
+  };
 
   renderCatalog();
 })();
