@@ -7,111 +7,66 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg: #f4f1ea;
-      --bg2: #ebe6dc;
-      --card: #fffcf7;
-      --text: #1c1917;
-      --muted: #78716c;
-      --line: #e7e0d4;
-      --ink: #0c0a09;
-      --accent: #1c1917;
-      --accent-soft: #292524;
-      --sale: #b45309;
-      --sale-bg: #fff7ed;
-      --ok: #3f3f46;
-      --shadow: 0 12px 40px rgba(28, 25, 23, 0.08);
-      --radius: 20px;
+      --bg: #f4f1ea; --card: #fffcf7; --text: #1c1917; --muted: #78716c;
+      --line: #e7e0d4; --ink: #0c0a09; --sale: #b45309; --sale-bg: #fff7ed;
+      --shadow: 0 12px 40px rgba(28, 25, 23, 0.08); --radius: 20px;
     }
     * { box-sizing: border-box; }
     body {
-      margin: 0;
-      font-family: Manrope, system-ui, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(1200px 600px at 10% -10%, #fff8ee 0%, transparent 55%),
-        radial-gradient(900px 500px at 100% 0%, #e8eee8 0%, transparent 50%),
-        var(--bg);
+      margin: 0; font-family: Manrope, system-ui, sans-serif; color: var(--text);
+      background: radial-gradient(1200px 600px at 10% -10%, #fff8ee 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #e8eee8 0%, transparent 50%), var(--bg);
       min-height: 100vh;
     }
     .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 18px 96px; }
     header.app {
-      display: flex; flex-wrap: wrap; gap: 14px;
-      align-items: flex-end; justify-content: space-between;
-      margin-bottom: 28px; padding-bottom: 18px;
+      display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end;
+      justify-content: space-between; margin-bottom: 28px; padding-bottom: 18px;
       border-bottom: 1px solid var(--line);
     }
     .brand h1 {
-      margin: 0;
-      font-family: "Instrument Serif", Georgia, serif;
-      font-weight: 400;
-      font-size: clamp(1.8rem, 4vw, 2.4rem);
-      letter-spacing: -0.02em;
-      line-height: 1.1;
+      margin: 0; font-family: "Instrument Serif", Georgia, serif; font-weight: 400;
+      font-size: clamp(1.8rem, 4vw, 2.4rem); letter-spacing: -0.02em; line-height: 1.1;
     }
-    .brand p { margin: 8px 0 0; color: var(--muted); font-size: 0.92rem; max-width: 36ch; }
-    .nav { display: flex; gap: 8px; }
+    .brand p { margin: 8px 0 0; color: var(--muted); font-size: 0.92rem; max-width: 40ch; }
     button, .btn {
-      border: none; cursor: pointer; border-radius: 999px;
-      padding: 11px 16px; font-size: 0.9rem; font-weight: 600;
-      font-family: inherit; transition: transform .12s ease, background .15s ease;
+      border: none; cursor: pointer; border-radius: 999px; padding: 11px 16px;
+      font-size: 0.9rem; font-weight: 600; font-family: inherit;
     }
-    button:active { transform: scale(0.98); }
     .btn-dark { background: var(--ink); color: #fafaf9; }
     .btn-soft { background: #fff; color: var(--text); border: 1px solid var(--line); }
-    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid transparent; }
-    .btn-block { width: 100%; }
+    .btn-ghost { background: transparent; color: var(--muted); }
     .btn-danger { background: #fef2f2; color: #b91c1c; }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
-    .chip {
-      background: transparent; border: 1px solid var(--line); color: var(--muted);
-      border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: 0.84rem; cursor: pointer;
-    }
-    .chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-      gap: 18px;
-    }
+    .btn-block { width: 100%; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
     .card {
-      background: var(--card);
-      border: 1px solid rgba(231,224,212,.9);
-      border-radius: var(--radius);
-      overflow: hidden; cursor: pointer;
-      box-shadow: var(--shadow);
-      display: flex; flex-direction: column;
+      background: var(--card); border: 1px solid rgba(231,224,212,.9); border-radius: var(--radius);
+      overflow: hidden; cursor: pointer; box-shadow: var(--shadow); display: flex; flex-direction: column;
       transition: transform .18s ease, box-shadow .18s ease;
     }
     .card:hover { transform: translateY(-3px); box-shadow: 0 18px 44px rgba(28,25,23,.12); }
-    .cover {
-      aspect-ratio: 3/4;
-      background: #e8e2d8 center/cover no-repeat;
-      position: relative;
-    }
+    .cover { aspect-ratio: 3/4; background: #e8e2d8 center/cover no-repeat; position: relative; }
     .badge-sale {
-      position: absolute; top: 12px; left: 12px;
-      background: var(--sale-bg); color: var(--sale);
-      border: 1px solid #fde68a;
-      font-size: 0.72rem; font-weight: 800;
-      letter-spacing: .04em; text-transform: uppercase;
-      padding: 6px 10px; border-radius: 999px;
+      position: absolute; top: 12px; left: 12px; background: var(--sale-bg); color: var(--sale);
+      border: 1px solid #fde68a; font-size: 0.72rem; font-weight: 800; letter-spacing: .04em;
+      text-transform: uppercase; padding: 6px 10px; border-radius: 999px;
     }
     .card-body { padding: 14px 14px 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
-    .card-title { font-weight: 700; font-size: 1rem; line-height: 1.35; letter-spacing: -.01em; }
+    .card-title { font-weight: 700; font-size: 1rem; line-height: 1.35; }
     .price-row { display: flex; align-items: baseline; gap: 8px; margin-top: auto; }
     .price { font-weight: 800; font-size: 1.05rem; }
     .price-old { color: var(--muted); text-decoration: line-through; font-size: .86rem; font-weight: 600; }
     .empty {
-      text-align: center; color: var(--muted); padding: 52px 16px;
-      background: var(--card); border-radius: var(--radius); border: 1px dashed var(--line);
+      text-align: center; color: var(--muted); padding: 52px 16px; background: var(--card);
+      border-radius: var(--radius); border: 1px dashed var(--line);
     }
     .hidden { display: none !important; }
     .modal-back {
-      position: fixed; inset: 0; background: rgba(28, 25, 23, 0.42);
-      backdrop-filter: blur(6px);
-      display: flex; align-items: flex-end; justify-content: center;
-      padding: 12px; z-index: 40;
+      position: fixed; inset: 0; background: rgba(28, 25, 23, 0.42); backdrop-filter: blur(6px);
+      display: flex; align-items: flex-end; justify-content: center; padding: 12px; z-index: 40;
     }
     @media (min-width: 720px) { .modal-back { align-items: center; } }
     .modal {
@@ -122,16 +77,16 @@
     .modal-body { padding: 20px; }
     .modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
     .panel {
-      background: var(--card); border: 1px solid var(--line);
-      border-radius: var(--radius); padding: 18px; margin-bottom: 14px;
+      background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 18px; margin-bottom: 14px;
     }
     .panel h2 { margin: 0 0 12px; font-size: 1.1rem; }
     label { display: block; font-size: .8rem; color: var(--muted); margin: 10px 0 5px; font-weight: 600; }
     input, textarea {
-      width: 100%; padding: 12px 13px; border-radius: 14px;
-      border: 1px solid var(--line); background: #fff; font: inherit; color: var(--text);
+      width: 100%; padding: 12px 13px; border-radius: 14px; border: 1px solid var(--line);
+      background: #fff; font: inherit; color: var(--text);
     }
-    textarea { min-height: 110px; resize: vertical; }
+    textarea { min-height: 100px; resize: vertical; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
     .admin-list { display: flex; flex-direction: column; gap: 10px; }
@@ -139,9 +94,7 @@
       display: flex; gap: 12px; align-items: center; padding: 10px;
       border: 1px solid var(--line); border-radius: 16px; background: #fff;
     }
-    .admin-item .mini {
-      width: 52px; height: 68px; border-radius: 10px; background: #eee center/cover; flex-shrink: 0;
-    }
+    .admin-item .mini { width: 52px; height: 68px; border-radius: 10px; background: #eee center/cover; flex-shrink: 0; }
     .admin-item .meta { flex: 1; min-width: 0; }
     .admin-item .meta strong { display: block; font-size: .92rem; }
     .admin-item .meta span { color: var(--muted); font-size: .8rem; }
@@ -158,40 +111,29 @@
       background: var(--ink); color: #fafaf9; padding: 12px 16px; border-radius: 14px;
       font-size: .9rem; z-index: 60; box-shadow: var(--shadow);
     }
-    .footer-note {
-      margin-top: 34px; text-align: center; color: var(--muted);
-      font-size: .82rem; line-height: 1.45;
-    }
+    .footer-note { margin-top: 34px; text-align: center; color: var(--muted); font-size: .82rem; line-height: 1.45; }
     .hint { font-size: .8rem; color: var(--muted); margin-top: 8px; line-height: 1.4; }
-    .switch { display: flex; align-items: center; gap: 8px; margin: 8px 0 12px; font-size: 0.9rem; color: var(--text); }
-    .switch input { width: auto; }
-
-    .about-block {
-      margin-bottom: 26px;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-    .about-inner {
-      display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start;
-      padding: 18px;
-    }
-    .about-photo {
-      width: 120px; height: 120px; border-radius: 18px;
-      background: #e8e2d8 center/cover no-repeat; flex-shrink: 0;
-    }
-    .about-text { flex: 1; min-width: 200px; }
-    .about-text h2 {
-      margin: 0 0 8px;
-      font-family: "Instrument Serif", Georgia, serif;
-      font-weight: 400; font-size: 1.45rem;
-    }
-    .about-text #aboutBody {
-      color: #44403c; line-height: 1.55; white-space: pre-wrap; font-size: 0.95rem;
-    }
     #adminRoot { min-height: 100vh; background: #f7f5f0; }
+    .about-block {
+      margin-bottom: 26px; background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; padding: 18px;
+    }
+    .about-block h2 {
+      margin: 0 0 16px; font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 1.5rem;
+    }
+    .creators-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px;
+    }
+    .creator-card {
+      display: flex; gap: 12px; align-items: flex-start; padding: 12px;
+      border: 1px solid var(--line); border-radius: 16px; background: #fff;
+    }
+    .creator-photo {
+      width: 72px; height: 72px; border-radius: 14px; background: #e8e2d8 center/cover no-repeat; flex-shrink: 0;
+    }
+    .creator-card h3 { margin: 0 0 6px; font-size: 1rem; }
+    .creator-card p { margin: 0; color: #44403c; font-size: .9rem; line-height: 1.45; white-space: pre-wrap; }
+    .status-line { font-size: .8rem; color: var(--muted); margin-bottom: 10px; }
   </style>
 </head>
 <body>
@@ -207,15 +149,11 @@
         </div>
       </header>
 
+      <p class="status-line" id="loadStatus">Загрузка витрины…</p>
 
       <section id="aboutSection" class="about-block hidden">
-        <div class="about-inner">
-          <div id="aboutPhoto" class="about-photo hidden"></div>
-          <div class="about-text">
-            <h2 id="aboutTitle">О создателях</h2>
-            <div id="aboutBody"></div>
-          </div>
-        </div>
+        <h2 id="aboutTitle">О создателях</h2>
+        <div id="creatorsGrid" class="creators-grid"></div>
       </section>
 
       <div id="catalog" class="grid"></div>
@@ -228,34 +166,34 @@
     <div class="wrap">
       <div class="panel" style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;">
         <h2 style="margin:0;">Управление витриной</h2>
-        <div>
-          <button type="button" class="btn-soft" id="adminExit">На витрину</button>
-        </div>
+        <button type="button" class="btn-soft" id="adminExit">На витрину</button>
       </div>
 
       <div class="panel">
-        <h2>Оплата и связь</h2>
-        <label>Реквизиты (карта / СБП / банк)</label>
-        <textarea id="cfgRequisites" placeholder="СБП: +7...&#10;Банк: ...&#10;Получатель: ..."></textarea>
-        <label>Ссылка на сообщество / чат VK</label>
-        <input id="cfgVk" placeholder="https://vk.me/club... или https://vk.com/..." />
-        <p class="hint">Покупатель нажмёт «Оплатил» — текст заказа с названием товара и кодом скопируется, откроется VK.</p>
-        <button type="button" class="btn-dark" id="saveCfg" style="margin-top:12px;">Сохранить</button>
+        <h2>Оплата и связь (общие)</h2>
+        <label>Общие реквизиты (если у товара не заданы свои)</label>
+        <textarea id="cfgRequisites"></textarea>
+        <label>Ссылка VK</label>
+        <input id="cfgVk" placeholder="https://vk.me/..." />
+        <button type="button" class="btn-dark" id="saveCfg" style="margin-top:12px;">Сохранить настройки</button>
       </div>
 
-
       <div class="panel">
-        <h2>О создателях (плашка на витрине)</h2>
-        <label class="switch"><input type="checkbox" id="cfgAboutOn" /> Показывать блок на сайте</label>
-        <label>Заголовок</label>
-        <input id="cfgAboutTitle" placeholder="О создателях" />
-        <label>Текст</label>
-        <textarea id="cfgAboutText" placeholder="Кто создал платформу и методические разработки..."></textarea>
+        <h2>Создатели</h2>
+        <p class="hint">Несколько человек: у каждого имя/роль, текст и фото. Блок на витрине виден, если есть хотя бы один создатель.</p>
+        <input type="hidden" id="editCreatorId" />
+        <label>Имя / роль</label>
+        <input id="cName" placeholder="Например: Анна · автор разработок" />
+        <label>Текст о человеке</label>
+        <textarea id="cText" placeholder="Кратко о создателе"></textarea>
         <label>Фото</label>
-        <input id="cfgAboutPhoto" type="file" accept="image/*" />
-        <div id="cfgAboutPreview" class="about-photo" style="display:none;margin-top:8px;"></div>
-        <button type="button" class="btn-soft" id="cfgAboutClearPhoto" style="margin-top:8px;">Убрать фото</button>
-        <button type="button" class="btn-dark" id="saveAbout" style="margin-top:12px;">Сохранить блок «О создателях»</button>
+        <input id="cPhoto" type="file" accept="image/*" />
+        <div id="cPhotoPreview" class="creator-photo" style="display:none;margin-top:8px;"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-dark" id="saveCreator">Сохранить создателя</button>
+          <button type="button" class="btn-soft" id="resetCreator">Сбросить</button>
+        </div>
+        <div id="adminCreators" class="admin-list" style="margin-top:14px;"></div>
       </div>
 
       <div class="panel">
@@ -275,25 +213,21 @@
             <input id="fSale" type="number" min="0" step="1" placeholder="нет" />
           </div>
         </div>
-        <label>Текст акции</label>
-        <input id="fSaleLabel" value="Акция" />
-
-        <label>Реквизиты для этого товара (если пусто — общие из настроек)</label>
+        <label>Реквизиты только для этого товара (пусто = общие)</label>
         <div class="row">
           <div>
             <label>Телефон (СБП)</label>
-            <input id="fPayPhone" placeholder="+7..." />
+            <input id="fPayPhone" />
           </div>
           <div>
             <label>Банк</label>
-            <input id="fPayBank" placeholder="Название банка" />
+            <input id="fPayBank" />
           </div>
         </div>
         <label>Получатель</label>
-        <input id="fPayName" placeholder="ФИО" />
-        <label>Дополнительно к реквизитам (необязательно)</label>
-        <textarea id="fPayExtra" placeholder="Комментарий для оплаты, карта и т.п."></textarea>
-
+        <input id="fPayName" />
+        <label>Дополнительно</label>
+        <textarea id="fPayExtra"></textarea>
         <label>Обложка</label>
         <input id="fCover" type="file" accept="image/*" />
         <div id="fCoverPreview" class="cover" style="max-width:140px;margin-top:8px;border-radius:14px;display:none;"></div>
@@ -310,7 +244,6 @@
     </div>
   </div>
 
-  <!-- product -->
   <div id="productModal" class="modal-back hidden">
     <div class="modal">
       <div class="modal-cover" id="pmCover"></div>
@@ -331,7 +264,6 @@
     </div>
   </div>
 
-  <!-- wishlist -->
   <div id="wishModal" class="modal-back hidden">
     <div class="modal">
       <div class="modal-body">
@@ -343,7 +275,6 @@
     </div>
   </div>
 
-  <!-- order / pay -->
   <div id="payModal" class="modal-back hidden">
     <div class="modal">
       <div class="modal-body">
@@ -351,8 +282,7 @@
         <p id="payProductTitle" style="color:var(--muted);margin-top:0;"></p>
         <div class="pay-box" id="payRequisites"></div>
         <p style="margin:0 0 8px;font-size:.92rem;">Код заказа: <span class="code-pill" id="payOrderCode"></span></p>
-        <p class="hint">1) Переведите сумму по реквизитам, в комментарии к платежу укажите код заказа.<br/>
-        2) Нажмите «Оплатил» — текст заказа скопируется и откроется сообщество VK. Вставьте сообщение, если оно не подставилось само.</p>
+        <p class="hint">Переведите сумму и укажите код в комментарии. Затем нажмите «Оплатил» — откроется VK, текст заказа скопируется.</p>
         <div class="modal-actions">
           <button type="button" class="btn-dark" id="payVk">Оплатил</button>
           <button type="button" class="btn-soft" id="payCopy">Скопировать текст заказа</button>
@@ -362,7 +292,6 @@
     </div>
   </div>
 
-  <!-- admin gate (no visible entry on storefront) -->
   <div id="adminLoginModal" class="modal-back hidden">
     <div class="modal">
       <div class="modal-body">
@@ -381,107 +310,155 @@
 
 <script>
 (function () {
-  // Смените пароль. Админка: в адресе добавьте #manage или нажмите 5 раз по заголовку.
-  const ADMIN_PASSWORD = "admin123";
-  const STORAGE_KEY = "method_shop_v2";
+  // ========== НАСТРОЙКИ ==========
+  const ADMIN_PASSWORD = "admin123"; // ОБЯЗАТЕЛЬНО смени на свой!
+  const SUPABASE_URL = "https://hmqfnwxutstbsfmsiapb.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_4lZoY79HqmtOwz1adBqpyw_BrHhjxQX";
+  // ==============================
 
-  const defaultState = {
+  const WISH_KEY = "method_shop_wish_v3";
+
+  const emptyState = {
     config: {
-      requisites: "СБП / перевод:\nТелефон: +7\nБанк:\nПолучатель:\n\nВ комментарии укажите код заказа.",
-      vkLink: "https://vk.com/",
-      aboutEnabled: false,
-      aboutTitle: "О создателях",
-      aboutText: "",
-      aboutPhoto: ""
+      requisites: "СБП / перевод:\nТелефон: +7\nБанк:\nПолучатель:",
+      vkLink: "https://vk.com/"
     },
-    products: []
+    products: [],
+    creators: []
   };
 
-  let state = loadState();
-  let filter = "all";
+  let state = structuredClone(emptyState);
+  let sb = null;
   let currentProductId = null;
   let coverDataUrl = null;
-  let wishlist = loadWishlist();
+  let creatorPhotoData = null;
+  let wishlist = [];
   let titleClicks = 0;
+  let cloudReady = false;
 
-  function loadState() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return structuredClone(defaultState);
-      const p = JSON.parse(raw);
-      return {
-        config: { ...defaultState.config, ...(p.config || {}) },
-        products: Array.isArray(p.products) ? p.products : []
-      };
-    } catch (e) { return structuredClone(defaultState); }
+  try { wishlist = JSON.parse(localStorage.getItem(WISH_KEY) || "[]"); } catch (e) { wishlist = []; }
+
+  function $(id) { return document.getElementById(id); }
+  function toast(msg) {
+    const el = $("toast"); el.textContent = msg; el.classList.remove("hidden");
+    clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.add("hidden"), 2600);
   }
-  function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-  function loadWishlist() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY + "_wish") || "[]"); } catch (e) { return []; }
-  }
-  function saveWishlist() {
-    localStorage.setItem(STORAGE_KEY + "_wish", JSON.stringify(wishlist));
-    document.getElementById("wishCount").textContent = String(wishlist.length);
-  }
-  function uid() { return "p_" + Math.random().toString(36).slice(2, 9) + Date.now().toString(36); }
+  function uid() { return "id_" + Math.random().toString(36).slice(2, 9) + Date.now().toString(36); }
   function orderCode() { return "Z" + Math.random().toString(36).slice(2, 6).toUpperCase() + Date.now().toString().slice(-4); }
   function money(n) { return Number(n || 0).toLocaleString("ru-RU") + " ₽"; }
-  function hasSale(p) {
-    return p.salePrice != null && p.salePrice !== "" && Number(p.salePrice) < Number(p.price);
-  }
+  function hasSale(p) { return p.salePrice != null && p.salePrice !== "" && Number(p.salePrice) < Number(p.price); }
   function effectivePrice(p) { return hasSale(p) ? Number(p.salePrice) : Number(p.price); }
-  function toast(msg) {
-    const el = document.getElementById("toast");
-    el.textContent = msg;
-    el.classList.remove("hidden");
-    clearTimeout(toast._t);
-    toast._t = setTimeout(() => el.classList.add("hidden"), 2400);
-  }
-  function $(id) { return document.getElementById(id); }
   function escapeHtml(s) {
     return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
-
-  function renderAbout() {
-    const sec = $("aboutSection");
-    const cfg = state.config || {};
-    const on = !!cfg.aboutEnabled && !!(cfg.aboutText || cfg.aboutPhoto);
-    sec.classList.toggle("hidden", !on);
-    if (!on) return;
-    $("aboutTitle").textContent = cfg.aboutTitle || "О создателях";
-    $("aboutBody").textContent = cfg.aboutText || "";
-    const ph = $("aboutPhoto");
-    if (cfg.aboutPhoto) {
-      ph.classList.remove("hidden");
-      ph.style.backgroundImage = "url('" + cfg.aboutPhoto + "')";
-    } else {
-      ph.classList.add("hidden");
-      ph.style.backgroundImage = "";
+  function initSupabase() {
+    if (!SUPABASE_URL || SUPABASE_URL.startsWith("ВСТАВЬ") || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.startsWith("ВСТАВЬ")) {
+      $("loadStatus").textContent = "Облако не настроено: вставь SUPABASE_URL и ключ в index.html";
+      return false;
     }
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return true;
+  }
+
+  async function loadCloud() {
+    if (!initSupabase()) {
+      renderAll();
+      return;
+    }
+    $("loadStatus").textContent = "Загрузка витрины…";
+    try {
+      const { data, error } = await sb.from("shop_store").select("data").eq("id", "main").maybeSingle();
+      if (error) throw error;
+      if (data && data.data) {
+        state = {
+          config: { ...emptyState.config, ...(data.data.config || {}) },
+          products: Array.isArray(data.data.products) ? data.data.products : [],
+          creators: Array.isArray(data.data.creators) ? data.data.creators : []
+        };
+      } else {
+        await sb.from("shop_store").upsert({ id: "main", data: emptyState, updated_at: new Date().toISOString() });
+        state = structuredClone(emptyState);
+      }
+      cloudReady = true;
+      $("loadStatus").textContent = "";
+    } catch (e) {
+      console.error(e);
+      $("loadStatus").textContent = "Не удалось загрузить данные. Проверь Supabase и SQL.";
+      toast("Ошибка загрузки");
+    }
+    renderAll();
+  }
+
+  async function saveCloud() {
+    if (!sb || !cloudReady) {
+      toast("Облако не подключено — изменения не сохранятся для всех");
+      return false;
+    }
+    try {
+      const { error } = await sb.from("shop_store").upsert({
+        id: "main",
+        data: {
+          config: state.config,
+          products: state.products,
+          creators: state.creators
+        },
+        updated_at: new Date().toISOString()
+      });
+      if (error) throw error;
+      return true;
+    } catch (e) {
+      console.error(e);
+      toast("Ошибка сохранения в облако");
+      return false;
+    }
+  }
+
+  function saveWish() {
+    localStorage.setItem(WISH_KEY, JSON.stringify(wishlist));
+    $("wishCount").textContent = String(wishlist.length);
+  }
+
+  function renderAll() {
+    renderCreatorsPublic();
+    renderCatalog();
+    saveWish();
+  }
+
+  function renderCreatorsPublic() {
+    const list = state.creators || [];
+    const sec = $("aboutSection");
+    sec.classList.toggle("hidden", list.length === 0);
+    const grid = $("creatorsGrid");
+    grid.innerHTML = "";
+    list.forEach((c) => {
+      const el = document.createElement("div");
+      el.className = "creator-card";
+      el.innerHTML =
+        (c.photo ? '<div class="creator-photo" style="background-image:url(\'' + c.photo + '\')"></div>' : '<div class="creator-photo"></div>') +
+        '<div><h3>' + escapeHtml(c.name || "Создатель") + "</h3><p>" + escapeHtml(c.text || "") + "</p></div>";
+      grid.appendChild(el);
+    });
   }
 
   function renderCatalog() {
     const root = $("catalog");
-    let list = state.products.slice().sort((a,b) => (b.createdAt||0)-(a.createdAt||0));
-    if (filter === "sale") list = list.filter(hasSale);
+    const list = (state.products || []).slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     root.innerHTML = "";
-    renderAbout();
     $("catalogEmpty").classList.toggle("hidden", list.length > 0);
     list.forEach((p) => {
       const card = document.createElement("article");
       card.className = "card";
       card.innerHTML =
         '<div class="cover" style="background-image:url(\'' + (p.cover || "") + '\')">' +
-          (hasSale(p) ? '<span class="badge-sale">Акция</span>' : '') +
-        "</div><div class=\"card-body\"><div class=\"card-title\">" + escapeHtml(p.title) +
-        "</div><div class=\"price-row\"><span class=\"price\">" + money(effectivePrice(p)) + "</span>" +
+        (hasSale(p) ? '<span class="badge-sale">Акция</span>' : "") +
+        '</div><div class="card-body"><div class="card-title">' + escapeHtml(p.title) +
+        '</div><div class="price-row"><span class="price">' + money(effectivePrice(p)) + "</span>" +
         (hasSale(p) ? '<span class="price-old">' + money(p.price) + "</span>" : "") +
         "</div></div>";
       card.onclick = () => openProduct(p.id);
       root.appendChild(card);
     });
-    saveWishlist();
   }
 
   function openProduct(id) {
@@ -495,7 +472,6 @@
     if (hasSale(p)) {
       $("pmPriceOld").textContent = money(p.price);
       $("pmPriceOld").classList.remove("hidden");
-      $("pmSaleBadge").textContent = "Акция";
       $("pmSaleBadge").classList.remove("hidden");
     } else {
       $("pmPriceOld").classList.add("hidden");
@@ -508,11 +484,9 @@
   function toggleWish(id) {
     const i = wishlist.indexOf(id);
     if (i >= 0) wishlist.splice(i, 1); else wishlist.push(id);
-    saveWishlist();
+    saveWish();
     toast(i >= 0 ? "Убрано" : "В отложенном");
-    if (!$("productModal").classList.contains("hidden")) {
-      $("pmWish").textContent = wishlist.includes(id) ? "В отложенном" : "Отложить";
-    }
+    $("pmWish").textContent = wishlist.includes(id) ? "В отложенном" : "Отложить";
     renderWish();
   }
 
@@ -524,7 +498,7 @@
     items.forEach((p) => {
       const row = document.createElement("div");
       row.className = "admin-item";
-      row.innerHTML = '<div class="mini" style="background-image:url(\'' + (p.cover||"") + '\')"></div>' +
+      row.innerHTML = '<div class="mini" style="background-image:url(\'' + (p.cover || "") + '\')"></div>' +
         '<div class="meta"><strong>' + escapeHtml(p.title) + "</strong><span>" + money(effectivePrice(p)) + "</span></div>";
       const openBtn = document.createElement("button");
       openBtn.className = "btn-soft"; openBtn.type = "button"; openBtn.textContent = "Открыть";
@@ -536,27 +510,13 @@
     });
   }
 
-  function buildOrderText(p, code) {
-    return (
-      "Здравствуйте! Заказ с витрины методических материалов.\n\n" +
-      "Код заказа: " + code + "\n" +
-      "Материал: " + p.title + "\n" +
-      "Сумма: " + effectivePrice(p) + " ₽\n\n" +
-      "Оплатил(а) по реквизитам. Прошу отправить материал."
-    );
-  }
-
-
   function formatProductRequisites(p) {
     const phone = (p.payPhone || "").trim();
     const bank = (p.payBank || "").trim();
     const name = (p.payName || "").trim();
     const extra = (p.payExtra || "").trim();
-    const hasCustom = phone || bank || name || extra;
-    if (!hasCustom) {
-      return state.config.requisites || "Реквизиты не заданы.";
-    }
-    let lines = ["Реквизиты для оплаты:"];
+    if (!(phone || bank || name || extra)) return state.config.requisites || "Реквизиты не заданы.";
+    const lines = ["Реквизиты для оплаты:"];
     if (phone) lines.push("Телефон (СБП): " + phone);
     if (bank) lines.push("Банк: " + bank);
     if (name) lines.push("Получатель: " + name);
@@ -565,15 +525,19 @@
     return lines.join("\n");
   }
 
+  function buildOrderText(p, code) {
+    return "Здравствуйте! Заказ с витрины методических материалов.\n\n" +
+      "Код заказа: " + code + "\nМатериал: " + p.title + "\nСумма: " + effectivePrice(p) + " ₽\n\n" +
+      "Оплатил(а) по реквизитам. Прошу отправить материал.";
+  }
+
   function openOrder(id) {
     const p = state.products.find((x) => x.id === id);
     if (!p) return;
-    currentProductId = id;
     const code = orderCode();
     $("payProductTitle").textContent = p.title + " — " + money(effectivePrice(p));
     $("payRequisites").textContent = formatProductRequisites(p);
     $("payOrderCode").textContent = code;
-    $("payOrderCode").dataset.code = code;
     $("payOrderCode").dataset.text = buildOrderText(p, code);
     $("productModal").classList.add("hidden");
     $("payModal").classList.remove("hidden");
@@ -581,111 +545,102 @@
 
   async function copyOrderText() {
     const text = $("payOrderCode").dataset.text || "";
-    try {
-      await navigator.clipboard.writeText(text);
-      toast("Текст заказа скопирован");
-      return true;
-    } catch (e) {
-      prompt("Скопируйте текст заказа:", text);
-      return false;
-    }
+    try { await navigator.clipboard.writeText(text); toast("Текст скопирован"); }
+    catch (e) { prompt("Скопируйте текст:", text); }
   }
 
   async function writeToVk() {
     await copyOrderText();
-    let link = (state.config.vkLink || "").trim();
-    if (!link) {
-      toast("Ссылка VK не задана в настройках");
-      return;
-    }
-    // open community / chat; message is in clipboard for paste
+    const link = (state.config.vkLink || "").trim();
+    if (!link) return toast("Ссылка VK не задана");
     window.open(link, "_blank", "noopener");
   }
 
-  function isAdmin() { return sessionStorage.getItem(STORAGE_KEY + "_admin") === "1"; }
-  function setAdmin(v) { sessionStorage.setItem(STORAGE_KEY + "_admin", v ? "1" : "0"); }
+  function isAdmin() { return sessionStorage.getItem("method_shop_admin_v3") === "1"; }
+  function setAdmin(v) { sessionStorage.setItem("method_shop_admin_v3", v ? "1" : "0"); }
 
   function showAdmin() {
     $("shopRoot").classList.add("hidden");
     $("adminRoot").classList.remove("hidden");
     $("cfgRequisites").value = state.config.requisites || "";
     $("cfgVk").value = state.config.vkLink || "";
-    $("cfgAboutOn").checked = !!state.config.aboutEnabled;
-    $("cfgAboutTitle").value = state.config.aboutTitle || "О создателях";
-    $("cfgAboutText").value = state.config.aboutText || "";
-    if (state.config.aboutPhoto) {
-      $("cfgAboutPreview").style.display = "block";
-      $("cfgAboutPreview").style.backgroundImage = "url('" + state.config.aboutPhoto + "')";
-    } else {
-      $("cfgAboutPreview").style.display = "none";
-    }
     renderAdminProducts();
+    renderAdminCreators();
     resetForm();
+    resetCreator();
     history.replaceState(null, "", "#manage");
   }
   function hideAdmin() {
     $("adminRoot").classList.add("hidden");
     $("shopRoot").classList.remove("hidden");
-    renderCatalog();
+    renderAll();
     history.replaceState(null, "", location.pathname + location.search);
   }
 
   function renderAdminProducts() {
-    const root = $("adminProducts");
-    root.innerHTML = "";
-    if (!state.products.length) {
-      root.innerHTML = '<div class="empty">Товаров нет</div>';
-      return;
-    }
+    const root = $("adminProducts"); root.innerHTML = "";
+    if (!state.products.length) { root.innerHTML = '<div class="empty">Товаров нет</div>'; return; }
     state.products.forEach((p) => {
       const row = document.createElement("div");
       row.className = "admin-item";
-      row.innerHTML = '<div class="mini" style="background-image:url(\'' + (p.cover||"") + '\')"></div>' +
-        '<div class="meta"><strong>' + escapeHtml(p.title) + "</strong><span>" +
-        money(effectivePrice(p)) + (hasSale(p) ? " · акция" : "") + "</span></div>";
+      row.innerHTML = '<div class="mini" style="background-image:url(\'' + (p.cover || "") + '\')"></div>' +
+        '<div class="meta"><strong>' + escapeHtml(p.title) + "</strong><span>" + money(effectivePrice(p)) +
+        (hasSale(p) ? " · акция" : "") + "</span></div>";
       const edit = document.createElement("button");
       edit.className = "btn-soft"; edit.type = "button"; edit.textContent = "Изменить";
       edit.onclick = () => fillForm(p);
       const del = document.createElement("button");
       del.className = "btn-danger"; del.type = "button"; del.textContent = "Удалить";
-      del.onclick = () => {
-        if (confirm("Удалить «" + p.title + "»?")) {
-          state.products = state.products.filter((x) => x.id !== p.id);
-          saveState(); renderAdminProducts(); renderCatalog();
-        }
+      del.onclick = async () => {
+        if (!confirm("Удалить «" + p.title + "»?")) return;
+        state.products = state.products.filter((x) => x.id !== p.id);
+        if (await saveCloud()) { renderAdminProducts(); renderCatalog(); toast("Удалено"); }
+      };
+      row.appendChild(edit); row.appendChild(del); root.appendChild(row);
+    });
+  }
+
+  function renderAdminCreators() {
+    const root = $("adminCreators"); root.innerHTML = "";
+    if (!state.creators.length) { root.innerHTML = '<div class="empty">Создателей пока нет</div>'; return; }
+    state.creators.forEach((c) => {
+      const row = document.createElement("div");
+      row.className = "admin-item";
+      row.innerHTML = '<div class="mini" style="background-image:url(\'' + (c.photo || "") + '\')"></div>' +
+        '<div class="meta"><strong>' + escapeHtml(c.name || "") + "</strong><span>" + escapeHtml((c.text || "").slice(0, 80)) + "</span></div>";
+      const edit = document.createElement("button");
+      edit.className = "btn-soft"; edit.type = "button"; edit.textContent = "Изменить";
+      edit.onclick = () => fillCreator(c);
+      const del = document.createElement("button");
+      del.className = "btn-danger"; del.type = "button"; del.textContent = "Удалить";
+      del.onclick = async () => {
+        if (!confirm("Удалить создателя?")) return;
+        state.creators = state.creators.filter((x) => x.id !== c.id);
+        if (await saveCloud()) { renderAdminCreators(); renderCreatorsPublic(); toast("Удалено"); }
       };
       row.appendChild(edit); row.appendChild(del); root.appendChild(row);
     });
   }
 
   function resetForm() {
-    $("editId").value = "";
-    $("formTitle").textContent = "Новый товар";
-    $("fTitle").value = ""; $("fDesc").value = ""; $("fPrice").value = "";
-    $("fSale").value = ""; $("fSaleLabel").value = "Акция"; $("fCover").value = "";
+    $("editId").value = ""; $("formTitle").textContent = "Новый товар";
+    $("fTitle").value = ""; $("fDesc").value = ""; $("fPrice").value = ""; $("fSale").value = "";
     $("fPayPhone").value = ""; $("fPayBank").value = ""; $("fPayName").value = ""; $("fPayExtra").value = "";
-    coverDataUrl = null; $("fCoverPreview").style.display = "none";
+    $("fCover").value = ""; coverDataUrl = null; $("fCoverPreview").style.display = "none";
   }
   function fillForm(p) {
-    $("editId").value = p.id;
-    $("formTitle").textContent = "Редактирование";
-    $("fTitle").value = p.title || "";
-    $("fDesc").value = p.description || "";
-    $("fPrice").value = p.price;
-    $("fSale").value = p.salePrice != null ? p.salePrice : "";
-    $("fSaleLabel").value = p.saleLabel || "Акция";
-    $("fPayPhone").value = p.payPhone || "";
-    $("fPayBank").value = p.payBank || "";
-    $("fPayName").value = p.payName || "";
-    $("fPayExtra").value = p.payExtra || "";
+    $("editId").value = p.id; $("formTitle").textContent = "Редактирование";
+    $("fTitle").value = p.title || ""; $("fDesc").value = p.description || "";
+    $("fPrice").value = p.price; $("fSale").value = p.salePrice != null ? p.salePrice : "";
+    $("fPayPhone").value = p.payPhone || ""; $("fPayBank").value = p.payBank || "";
+    $("fPayName").value = p.payName || ""; $("fPayExtra").value = p.payExtra || "";
     coverDataUrl = p.cover || null;
     if (coverDataUrl) {
       $("fCoverPreview").style.display = "block";
       $("fCoverPreview").style.backgroundImage = "url('" + coverDataUrl + "')";
     }
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  function saveProduct() {
+  async function saveProduct() {
     const title = ($("fTitle").value || "").trim();
     const price = Number($("fPrice").value);
     if (!title) return toast("Нужно название");
@@ -699,7 +654,6 @@
       description: ($("fDesc").value || "").trim(),
       price,
       salePrice: salePrice != null && !Number.isNaN(salePrice) ? salePrice : null,
-      saleLabel: ($("fSaleLabel").value || "Акция").trim(),
       payPhone: ($("fPayPhone").value || "").trim(),
       payBank: ($("fPayBank").value || "").trim(),
       payName: ($("fPayName").value || "").trim(),
@@ -710,7 +664,38 @@
     if (!product.cover) return toast("Нужна обложка");
     if (existing) state.products = state.products.map((x) => x.id === id ? product : x);
     else state.products.unshift(product);
-    saveState(); renderAdminProducts(); renderCatalog(); resetForm(); toast("Сохранено");
+    if (await saveCloud()) {
+      renderAdminProducts(); renderCatalog(); resetForm(); toast("Товар сохранён для всех");
+    }
+  }
+
+  function resetCreator() {
+    $("editCreatorId").value = ""; $("cName").value = ""; $("cText").value = "";
+    $("cPhoto").value = ""; creatorPhotoData = null; $("cPhotoPreview").style.display = "none";
+  }
+  function fillCreator(c) {
+    $("editCreatorId").value = c.id; $("cName").value = c.name || ""; $("cText").value = c.text || "";
+    creatorPhotoData = c.photo || null;
+    if (creatorPhotoData) {
+      $("cPhotoPreview").style.display = "block";
+      $("cPhotoPreview").style.backgroundImage = "url('" + creatorPhotoData + "')";
+    }
+  }
+  async function saveCreator() {
+    const name = ($("cName").value || "").trim();
+    if (!name) return toast("Укажите имя");
+    const id = $("editCreatorId").value || uid();
+    const existing = state.creators.find((x) => x.id === id);
+    const item = {
+      id, name,
+      text: ($("cText").value || "").trim(),
+      photo: creatorPhotoData || (existing && existing.photo) || ""
+    };
+    if (existing) state.creators = state.creators.map((x) => x.id === id ? item : x);
+    else state.creators.push(item);
+    if (await saveCloud()) {
+      renderAdminCreators(); renderCreatorsPublic(); resetCreator(); toast("Создатель сохранён");
+    }
   }
 
   function tryOpenAdminGate() {
@@ -727,17 +712,12 @@
   $("payClose").onclick = () => $("payModal").classList.add("hidden");
   $("payCopy").onclick = copyOrderText;
   $("payVk").onclick = writeToVk;
-
   $("siteTitle").addEventListener("click", () => {
-    titleClicks += 1;
-    clearTimeout($("siteTitle")._t);
+    titleClicks++; clearTimeout($("siteTitle")._t);
     $("siteTitle")._t = setTimeout(() => { titleClicks = 0; }, 900);
     if (titleClicks >= 5) { titleClicks = 0; tryOpenAdminGate(); }
   });
-
-  window.addEventListener("hashchange", () => {
-    if (location.hash === "#manage") tryOpenAdminGate();
-  });
+  window.addEventListener("hashchange", () => { if (location.hash === "#manage") tryOpenAdminGate(); });
   if (location.hash === "#manage") tryOpenAdminGate();
 
   $("adminLoginBtn").onclick = () => {
@@ -747,17 +727,19 @@
   };
   $("adminLoginClose").onclick = () => $("adminLoginModal").classList.add("hidden");
   $("adminExit").onclick = hideAdmin;
-  $("saveCfg").onclick = () => {
+  $("saveCfg").onclick = async () => {
     state.config.requisites = $("cfgRequisites").value;
     state.config.vkLink = $("cfgVk").value.trim();
-    saveState(); toast("Сохранено");
+    if (await saveCloud()) toast("Настройки сохранены");
   };
   $("saveProduct").onclick = saveProduct;
   $("resetForm").onclick = resetForm;
+  $("saveCreator").onclick = saveCreator;
+  $("resetCreator").onclick = resetCreator;
   $("fCover").onchange = (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
-    if (file.size > 1.5 * 1024 * 1024) return toast("Обложка до ~1.5 МБ");
+    if (file.size > 1.2 * 1024 * 1024) return toast("Обложка до ~1.2 МБ");
     const reader = new FileReader();
     reader.onload = () => {
       coverDataUrl = String(reader.result);
@@ -766,46 +748,24 @@
     };
     reader.readAsDataURL(file);
   };
+  $("cPhoto").onchange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (file.size > 1.2 * 1024 * 1024) return toast("Фото до ~1.2 МБ");
+    const reader = new FileReader();
+    reader.onload = () => {
+      creatorPhotoData = String(reader.result);
+      $("cPhotoPreview").style.display = "block";
+      $("cPhotoPreview").style.backgroundImage = "url('" + creatorPhotoData + "')";
+    };
+    reader.readAsDataURL(file);
+  };
 
-  
   ["productModal","wishModal","payModal","adminLoginModal"].forEach((id) => {
     $(id).addEventListener("click", (e) => { if (e.target === $(id)) $(id).classList.add("hidden"); });
   });
 
-
-  let aboutPhotoData = null;
-  $("saveAbout").onclick = () => {
-    state.config.aboutEnabled = $("cfgAboutOn").checked;
-    state.config.aboutTitle = ($("cfgAboutTitle").value || "О создателях").trim();
-    state.config.aboutText = ($("cfgAboutText").value || "").trim();
-    if (aboutPhotoData) state.config.aboutPhoto = aboutPhotoData;
-    saveState();
-    renderAbout();
-    toast("Блок «О создателях» сохранён");
-  };
-  $("cfgAboutPhoto").onchange = (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    if (file.size > 1.5 * 1024 * 1024) return toast("Фото до ~1.5 МБ");
-    const reader = new FileReader();
-    reader.onload = () => {
-      aboutPhotoData = String(reader.result);
-      state.config.aboutPhoto = aboutPhotoData;
-      $("cfgAboutPreview").style.display = "block";
-      $("cfgAboutPreview").style.backgroundImage = "url('" + aboutPhotoData + "')";
-    };
-    reader.readAsDataURL(file);
-  };
-  $("cfgAboutClearPhoto").onclick = () => {
-    aboutPhotoData = null;
-    state.config.aboutPhoto = "";
-    $("cfgAboutPhoto").value = "";
-    $("cfgAboutPreview").style.display = "none";
-    saveState();
-    toast("Фото убрано");
-  };
-
-  renderCatalog();
+  loadCloud();
 })();
 </script>
 </body>
